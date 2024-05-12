@@ -1,23 +1,41 @@
-# Mission 2
+# Mission 3
 
-## Part 0
+## Part 1,2 
 
-[Link to video](https://drive.google.com/file/d/1pCjUL16Z94YfS-VIHXgqbh5Gm4DQlAtE/view?usp=sharing)
+[Link to folder](https://drive.google.com/drive/folders/1cUfD8jWtsl6yxNlOV80eIaVta48Thqib?usp=sharing)
 
-## Part1
+## Part 3
 
-- Вопрос 1	 
-SSH-то протокол, который позволяет нам безопасно подключиться к серверу. Насколько я понимаю, это альтернатива логина и пароля  
+- Запрос 1 Получить список юзернеймов пользователей\
+SELECT username\
+FROM users;
 
-- Вопрос 2	 
-Ключ нужно записать в файл ~/.ssh/authorized_keys 
+- Запрос 2 Получить кол-во отправленных сообщений каждым пользователем\
+SELECT u.username, COUNT(m.id) AS total_messages\
+FROM users u\
+JOIN messages m ON u.id = m.from\
+GROUP BY u.username;
 
-- Вопрос 3	 
-long polling - это, когда мы отправляем запрос на сервер заранее, и далее, если какое-то изменение происходит (к прмеру, приходит сообщение) он присылает нам ответ на этот запрос. Webhooks - это, по сути, механизм обратного действия. Не мы отправляем запрос и ждем ответа, а исходный сайт отправляет HTTP-запрос на URL-адрес, когда происходит какое-то событие/изменение  
+- Запрос 3 Пользователя с самым большим кол-вом полученных сообщений и само количество\
+ELECT u.username, COUNT(m.id) AS total_messages\
+FROM users u\
+JOIN messages m ON u.id = m.from\
+GROUP BY u.username\
+HAVING COUNT(m.id) = (\
+SELECT COUNT(m2.id) AS max_messages\
+FROM messages m2\
+GROUP BY m2.from\
+ORDER BY max_messages DESC\
+LIMIT 1\
+);
 
-- Вопрос 4	 
-issues - это элемент, который позволяют обсуждать, задавать вопросы по определенным этапам разработки  
-https://github.com/microsoft/vscode/issues
-https://github.com/facebook/react/issues
-- Вопрос 5	 
-Чтобы добавить пустую папку, можно создать в ней пустой файлик заглушку (насколько я поняла, называют его обычно .gitkeep)  
+- Запрос 4 Получить среднее кол-во сообщений, отправленное каждым пользователем\
+SELECT u.username, AVG(sent_messages.count) AS average_sent_messages\
+FROM (\
+SELECT from AS user_id, COUNT(*) AS count\
+FROM messages\
+GROUP BY from\
+) sent_messages\
+JOIN users u ON u.id = sent_messages.user_id\
+GROUP BY u.username;
+  
